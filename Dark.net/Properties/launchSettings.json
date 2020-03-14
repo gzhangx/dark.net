@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Dark.net": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\utils\\dark.net\\Dark.net\\Dark.net\\bin\\Debug",
+      "nativeDebugging": true
+    }
+  }
+}
