@@ -1,9 +1,29 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Dark.net
 {
+    public class DectationRes
+    {
+        public class BBox
+        {
+            public double center_x;
+            public double center_y;
+            public double width;
+            public double height;
+        }
+        public int class_id;
+        public string name;
+        public BBox relative_coordinates;
+        public double confidence;
+    }
+    public class DectationResAry
+    {
+        public List<DectationRes> objects;
+    }
     class Program
     {
         delegate void StringAct(string jsn);
@@ -19,10 +39,13 @@ namespace Dark.net
 
             static void Main(string[] args)
         {
+            
+            
             var ptr = ggCreateNetwork();
             byte[] img = File.ReadAllBytes("dog.jpg");
             gDetect(ptr, img, img.Length, str=>
             {
+                var rs = JsonConvert.DeserializeObject<DectationResAry>(str);
                 Console.WriteLine(str);
             });
             gFreeNetwork(ptr);
