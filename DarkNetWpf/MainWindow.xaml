@@ -16,11 +16,11 @@
             <RowDefinition Height="60"/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
-        <Canvas x:Name="canvResult"></Canvas>
+        <Image x:Name="imgResult"></Image>
         <TextBlock x:Name="txtInfo" Grid.Row="1" Grid.ColumnSpan="2"></TextBlock>
         <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2">
-            <Button x:Name="btnLoadImg" Click="btnLoadImg_Click"></Button>
-            <TextBox x:Name="txtFileName" Text="C:\utils\dark.net\Dark.net\Dark.net\bin\Debug\dog.jpg"></TextBox>
+            <Button x:Name="btnLoadImg" Click="btnLoadImg_Click">Load</Button>
+            <TextBox x:Name="txtFileName" Text="C:\utils\dlls\dog.jpg"></TextBox>
         </StackPanel>
     </Grid>
 </Window>

@@ -84,11 +84,20 @@ namespace DarkNetWpf
                             var w = (int)(o.relative_coordinates.width * img.Width);
                             var h = (int)(o.relative_coordinates.height * img.Height);
                             var left = cx - (w / 2);
-                            var top = cy - (h / 2);
+                            var top = (h / 2) - cy;
                             graphics.DrawRectangle(System.Drawing.Pens.Red, new System.Drawing.Rectangle(left, top, w, h));
                         });
                         img.Save($"c:\\temp\\resized-1.png", ImageFormat.Png);
                     }
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    //bitmap.UriSource = new Uri(selectedFileName);
+                    var ms = new MemoryStream();
+                    img.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
+                    bitmap.StreamSource = ms;
+                    bitmap.EndInit();
+                    imgResult.Source = bitmap;
                 }
             } catch (Exception exc)
             {
