@@ -2,7 +2,7 @@
   "profiles": {
     "DarkNetWpf": {
       "commandName": "Project",
-      "workingDirectory": "C:\\utils\\dark.net\\bin\\Debug"
+      "workingDirectory": "C:\\utils\\dlls"
     }
   }
 }
