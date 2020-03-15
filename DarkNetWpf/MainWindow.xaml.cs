@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using veda.darknet.invoke;
 using System.Drawing.Imaging;
 using System.Drawing;
+using Emgu.CV;
 
 namespace DarkNetWpf
 {
@@ -27,6 +28,7 @@ namespace DarkNetWpf
     {
         Thread loadingThread;
         IntPtr net = IntPtr.Zero;
+        VideoCapture cap = new VideoCapture();
         public MainWindow()
         {
             InitializeComponent();
@@ -37,6 +39,15 @@ namespace DarkNetWpf
                 Dsp("Done Loading network");
             });
             loadingThread.Start();
+            
+            cap.ImageGrabbed += Cap_ImageGrabbed;
+            cap.Start();
+        }
+
+        private void Cap_ImageGrabbed(object sender, EventArgs e)
+        {
+            var mat = cap.QueryFrame();
+            //CvInvoke.Imwrite("c")
         }
 
         void Dsp(string s)
@@ -50,6 +61,7 @@ namespace DarkNetWpf
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Core.gFreeNetwork(net);
+            cap.Stop();
         }
 
         private void btnLoadImg_Click(object sender, RoutedEventArgs e)
