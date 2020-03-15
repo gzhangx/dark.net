@@ -7,18 +7,17 @@ namespace veda.darknet.invoke
     {
         public class BBox
         {
-            public double center_x;
-            public double center_y;
-            public double width;
-            public double height;
+            public double x;
+            public double y;
+            public double w;
+            public double h;
         }
         public int class_id;
         public string name;
-        public BBox relative_coordinates;
+        public BBox box;
         public double confidence;
+        public List<string> lables;
+        public List<double> probs;
     }
-    public class DectationResAry
-    {
-        public List<DectationRes> objects;
-    }
+    
 }

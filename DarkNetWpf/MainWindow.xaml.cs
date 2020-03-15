@@ -77,14 +77,14 @@ namespace DarkNetWpf
                         //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         //graphics.CompositingMode = CompositingMode.SourceCopy;
                         //graphics.DrawImage(image, 0, 0, width, height);
-                        res.objects.ForEach(o =>
+                        res.ForEach(o =>
                         {
-                            var cx = (int)(o.relative_coordinates.center_x * img.Width);
-                            var cy = (int)(o.relative_coordinates.center_y * img.Width);
-                            var w = (int)(o.relative_coordinates.width * img.Width);
-                            var h = (int)(o.relative_coordinates.height * img.Height);
+                            var cx = (int)(o.box.x * img.Width);
+                            var cy = (int)(o.box.y * img.Height);
+                            var w = (int)(o.box.w * img.Width);
+                            var h = (int)(o.box.h * img.Height);
                             var left = cx - (w / 2);
-                            var top = (h / 2) - cy;
+                            var top = cy - (h / 2) ;
                             graphics.DrawRectangle(System.Drawing.Pens.Red, new System.Drawing.Rectangle(left, top, w, h));
                         });
                         img.Save($"c:\\temp\\resized-1.png", ImageFormat.Png);

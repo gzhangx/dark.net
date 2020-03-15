@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace veda.darknet.invoke
@@ -17,12 +18,12 @@ namespace veda.darknet.invoke
         [DllImport("dark.dll", CharSet = CharSet.Ansi, SetLastError = true)]
         static extern void gDetect(IntPtr info, byte[] imageBuffer, int imgLength, StringAct act, float thresh = 0.24f, float hier_thresh = 0.5f, int letter_box = 0);
 
-        public static DectationResAry Detect(IntPtr net, byte[] imgBuf, float threshold)
+        public static List<DectationRes> Detect(IntPtr net, byte[] imgBuf, float threshold)
         {
-            DectationResAry res = null;
+            List<DectationRes> res = null;
             gDetect(net, imgBuf, imgBuf.Length, str =>
             {
-                res = JsonConvert.DeserializeObject<DectationResAry>(str);
+                res = JsonConvert.DeserializeObject<List<DectationRes>>(str);
             });
             return res;
         }
