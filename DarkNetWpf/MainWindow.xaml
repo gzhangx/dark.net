@@ -20,7 +20,7 @@
         <TextBlock x:Name="txtInfo" Grid.Row="1" Grid.ColumnSpan="2"></TextBlock>
         <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2">
             <Button x:Name="btnLoadImg" Click="btnLoadImg_Click">Load</Button>
-            <TextBox x:Name="txtFileName" Text="C:\utils\dlls\dog.jpg"></TextBox>
+            <TextBox x:Name="txtFileName" Text="C:\utils\darknet\data\dog.jpg"></TextBox>
         </StackPanel>
     </Grid>
 </Window>
