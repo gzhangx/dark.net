@@ -44,18 +44,44 @@ namespace DarkNetWpf
             cap.Start();
         }
 
+        bool inprocessing = false;
         private void Cap_ImageGrabbed(object sender, EventArgs e)
         {
-            var mat = cap.QueryFrame();
-            //CvInvoke.Imwrite("c")
+            if (inprocessing) return;
+            //cap.Retrieve()
+            Mat mat = new Mat();
+            {
+                
+                    
+                cap.Retrieve(mat);
+                
+                if (mat == null)
+                {
+                    return;
+                }
+                inprocessing = true;                
+                DspAct(() =>
+                {
+                    var buf = mat.matToImageBuf();
+                    ProcessImage(buf);
+                    //imgResult.Source = src;
+                    mat.Dispose();
+                    inprocessing = false;                    
+                });
+            }
         }
 
+
+        void DspAct(Action act)
+        {
+            Dispatcher.BeginInvoke(new Action(act));
+        }
         void Dsp(string s)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            DspAct(() =>
             {
                 txtInfo.Text = s;
-            }));
+            });
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -64,6 +90,41 @@ namespace DarkNetWpf
             cap.Stop();
         }
 
+        void ProcessImage(byte[] buf)
+        {
+            if (net != IntPtr.Zero)
+            {
+                var res = Core.Detect(net, buf, 0.8f);
+                var img = Bitmap.FromStream(new MemoryStream(buf));
+                using (var graphics = Graphics.FromImage(img))
+                {
+                    //graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                    //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    //graphics.CompositingMode = CompositingMode.SourceCopy;
+                    //graphics.DrawImage(image, 0, 0, width, height);
+                    res.ForEach(o =>
+                    {
+                        var cx = (int)(o.box.x * img.Width);
+                        var cy = (int)(o.box.y * img.Height);
+                        var w = (int)(o.box.w * img.Width);
+                        var h = (int)(o.box.h * img.Height);
+                        var left = cx - (w / 2);
+                        var top = cy - (h / 2);
+                        graphics.DrawRectangle(System.Drawing.Pens.Red, new System.Drawing.Rectangle(left, top, w, h));
+                    });
+                    //img.Save($"c:\\temp\\resized-1.png", ImageFormat.Png);
+                }
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                //bitmap.UriSource = new Uri(selectedFileName);
+                var ms = new MemoryStream();
+                img.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
+                bitmap.StreamSource = ms;
+                bitmap.EndInit();
+                imgResult.Source = bitmap;
+            }
+        }
         private void btnLoadImg_Click(object sender, RoutedEventArgs e)
         {
             try

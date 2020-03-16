@@ -14,9 +14,13 @@ namespace DarkNetWpf
 {
     public static class Util
     {
+        public static byte[] matToImageBuf(this Mat mat)
+        {
+            return mat.ToImage<Bgr, byte>().ToJpegData();            
+        }
         public static Bitmap matToBitmap(Mat mat)
         {
-            var buf = mat.ToImage<Bgr, byte>().ToJpegData();
+            var buf = matToImageBuf(mat);
             return (Bitmap)Bitmap.FromStream(new MemoryStream(buf));            
         }
         public static BitmapImage Convert(Bitmap src)
