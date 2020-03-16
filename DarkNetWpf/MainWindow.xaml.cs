@@ -44,29 +44,55 @@ namespace DarkNetWpf
             cap.Start();
         }
 
+
         bool inprocessing = false;
+        bool inProcessingSleep = false;
+        DateTime processingStart = DateTime.Now;
+        DateTime processingEnd = DateTime.Now;
         private void Cap_ImageGrabbed(object sender, EventArgs e)
         {
             if (inprocessing) return;
-            //cap.Retrieve()
-            Mat mat = new Mat();
+            if (inProcessingSleep)
             {
-                
-                    
+                if (DateTime.Now.Subtract(processingEnd).TotalMilliseconds < 0)
+                    return;
+            }
+            inProcessingSleep = false;
+            processingStart = DateTime.Now;
+            processingEnd = processingStart.AddSeconds(1);
+            inprocessing = true;
+            //cap.Retrieve()
+            using (Mat mat = new Mat())
+            {
                 cap.Retrieve(mat);
-                
+
                 if (mat == null)
                 {
+                    inprocessing = false;
+                    inProcessingSleep = true;
                     return;
                 }
-                inprocessing = true;                
-                DspAct(() =>
+                var buf = mat.matToImageBuf();
+                buf = ProcessImage(buf);
+                if (buf == null)
                 {
-                    var buf = mat.matToImageBuf();
-                    ProcessImage(buf);
+                    inprocessing = false;
+                    inProcessingSleep = true;
+                    return;
+                }
+                DspAct(() =>
+                {                    
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    //bitmap.UriSource = new Uri(selectedFileName);                                        
+                    bitmap.StreamSource = new MemoryStream(buf);
+                    bitmap.EndInit();
+                    imgResult.Source = bitmap;
                     //imgResult.Source = src;
                     mat.Dispose();
-                    inprocessing = false;                    
+                    inProcessingSleep = true;
+                    processingEnd = processingStart.AddSeconds(5);
+                    inprocessing = false;
                 });
             }
         }
@@ -90,40 +116,39 @@ namespace DarkNetWpf
             cap.Stop();
         }
 
-        void ProcessImage(byte[] buf)
+        byte[] ProcessImage(byte[] buf)
         {
             if (net != IntPtr.Zero)
             {
                 var res = Core.Detect(net, buf, 0.8f);
-                var img = Bitmap.FromStream(new MemoryStream(buf));
-                using (var graphics = Graphics.FromImage(img))
+                using (var img = Bitmap.FromStream(new MemoryStream(buf)))
                 {
-                    //graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                    //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    //graphics.CompositingMode = CompositingMode.SourceCopy;
-                    //graphics.DrawImage(image, 0, 0, width, height);
-                    res.ForEach(o =>
+                    using (var graphics = Graphics.FromImage(img))
                     {
-                        var cx = (int)(o.box.x * img.Width);
-                        var cy = (int)(o.box.y * img.Height);
-                        var w = (int)(o.box.w * img.Width);
-                        var h = (int)(o.box.h * img.Height);
-                        var left = cx - (w / 2);
-                        var top = cy - (h / 2);
-                        graphics.DrawRectangle(System.Drawing.Pens.Red, new System.Drawing.Rectangle(left, top, w, h));
-                    });
-                    //img.Save($"c:\\temp\\resized-1.png", ImageFormat.Png);
+                        //graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                        //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        //graphics.CompositingMode = CompositingMode.SourceCopy;
+                        //graphics.DrawImage(image, 0, 0, width, height);
+                        res.ForEach(o =>
+                        {
+                            var cx = (int)(o.box.x * img.Width);
+                            var cy = (int)(o.box.y * img.Height);
+                            var w = (int)(o.box.w * img.Width);
+                            var h = (int)(o.box.h * img.Height);
+                            var left = cx - (w / 2);
+                            var top = cy - (h / 2);
+                            graphics.DrawRectangle(System.Drawing.Pens.Red, new System.Drawing.Rectangle(left, top, w, h));
+                        });
+                        //img.Save($"c:\\temp\\resized-1.png", ImageFormat.Png);
+                    }
+                    using (var ms = new MemoryStream())
+                    {
+                        img.Save(ms, ImageFormat.Png);
+                        return ms.ToArray();
+                    }
                 }
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                //bitmap.UriSource = new Uri(selectedFileName);
-                var ms = new MemoryStream();
-                img.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
-                bitmap.StreamSource = ms;
-                bitmap.EndInit();
-                imgResult.Source = bitmap;
             }
+            return null;
         }
         private void btnLoadImg_Click(object sender, RoutedEventArgs e)
         {
