@@ -138,6 +138,8 @@ namespace DarkNetWpf
                             var left = cx - (w / 2);
                             var top = cy - (h / 2);
                             graphics.DrawRectangle(System.Drawing.Pens.Red, new System.Drawing.Rectangle(left, top, w, h));
+                            graphics.DrawString($"name {o.name} prob {o.confidence.ToString("N2")}", new Font("Arial", 8), System.Drawing.Brushes.White,
+                                new PointF(left, top +10));
                         });
                         //img.Save($"c:\\temp\\resized-1.png", ImageFormat.Png);
                     }
